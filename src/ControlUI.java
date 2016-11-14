@@ -1,6 +1,8 @@
-
-import javax.naming.ldap.Control;
 import javax.swing.JFileChooser;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
+import java.io.*;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -22,8 +24,9 @@ public class ControlUI extends javax.swing.JFrame {
     }
 
     JFileChooser fc;
-    private final String initial_directory="/Users/azhar/Documents/GitProjects/";
-    String input_file;
+    private final String initial_directory = "/Users/azhar/Documents/GitProjects/";
+    public static String input_file_name;
+    public static String output_file_name;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -58,8 +61,16 @@ public class ControlUI extends javax.swing.JFrame {
         jLayeredPane5 = new javax.swing.JLayeredPane();
         jButton_library_enc = new javax.swing.JButton();
         jButton_library_dec = new javax.swing.JButton();
+        jLayeredPane6 = new javax.swing.JLayeredPane();
+        jLabel9 = new javax.swing.JLabel();
+        jButton_compare = new javax.swing.JButton();
+        jComboBox_comparison_mode = new javax.swing.JComboBox();
+        jLayeredPane4 = new javax.swing.JLayeredPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea_result = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jLayeredPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Configurations"));
 
@@ -94,16 +105,16 @@ public class ControlUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jLayeredPane1Layout.createSequentialGroup()
-                        .addComponent(jComboBox_key_size, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox_key_size, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2))
                     .addGroup(jLayeredPane1Layout.createSequentialGroup()
-                        .addComponent(jComboBox_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox_mode, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel4))
                     .addGroup(jLayeredPane1Layout.createSequentialGroup()
-                        .addComponent(jComboBox_isPading, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addComponent(jComboBox_isPading, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel6)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -217,7 +228,7 @@ public class ControlUI extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jLayeredPane3Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton_implemented_enc, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59)
+                .addGap(72, 72, 72)
                 .addComponent(jButton_implemented_dec, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22))
         );
@@ -255,20 +266,86 @@ public class ControlUI extends javax.swing.JFrame {
             .addGroup(jLayeredPane5Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton_library_enc, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(64, 64, 64)
+                .addGap(73, 73, 73)
                 .addComponent(jButton_library_dec, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20))
         );
         jLayeredPane5Layout.setVerticalGroup(
             jLayeredPane5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jLayeredPane5Layout.createSequentialGroup()
-                .addGroup(jLayeredPane5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton_library_dec)
-                    .addComponent(jButton_library_enc))
-                .addGap(0, 8, Short.MAX_VALUE))
+            .addGroup(jLayeredPane5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jButton_library_dec)
+                .addComponent(jButton_library_enc))
         );
         jLayeredPane5.setLayer(jButton_library_enc, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane5.setLayer(jButton_library_dec, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        jLayeredPane6.setBorder(javax.swing.BorderFactory.createTitledBorder("Compare AES with RSA"));
+
+        jLabel9.setText("Select Comparison Mode");
+
+        jButton_compare.setText("Compare");
+
+        jComboBox_comparison_mode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Encrypt", "Decrypt" }));
+
+        jLayeredPane4.setBorder(javax.swing.BorderFactory.createTitledBorder("Comparison Result"));
+
+        jTextArea_result.setColumns(20);
+        jTextArea_result.setRows(5);
+        jTextArea_result.setEnabled(false);
+        jScrollPane1.setViewportView(jTextArea_result);
+
+        javax.swing.GroupLayout jLayeredPane4Layout = new javax.swing.GroupLayout(jLayeredPane4);
+        jLayeredPane4.setLayout(jLayeredPane4Layout);
+        jLayeredPane4Layout.setHorizontalGroup(
+            jLayeredPane4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+        );
+        jLayeredPane4Layout.setVerticalGroup(
+            jLayeredPane4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jLayeredPane4.setLayer(jScrollPane1, javax.swing.JLayeredPane.DEFAULT_LAYER);
+
+        javax.swing.GroupLayout jLayeredPane6Layout = new javax.swing.GroupLayout(jLayeredPane6);
+        jLayeredPane6.setLayout(jLayeredPane6Layout);
+        jLayeredPane6Layout.setHorizontalGroup(
+            jLayeredPane6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jLayeredPane6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jLayeredPane6Layout.createSequentialGroup()
+                        .addComponent(jLayeredPane4)
+                        .addContainerGap())
+                    .addGroup(jLayeredPane6Layout.createSequentialGroup()
+                        .addComponent(jLabel9)
+                        .addGap(18, 18, 18)
+                        .addComponent(jComboBox_comparison_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton_compare, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(21, 21, 21))))
+        );
+        jLayeredPane6Layout.setVerticalGroup(
+            jLayeredPane6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jLayeredPane6Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jLayeredPane6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(jComboBox_comparison_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton_compare))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLayeredPane4)
+                .addContainerGap())
+        );
+        jLayeredPane6.setLayer(jLabel9, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane6.setLayer(jButton_compare, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane6.setLayer(jComboBox_comparison_mode, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane6.setLayer(jLayeredPane4, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -277,11 +354,12 @@ public class ControlUI extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(23, 23, 23)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLayeredPane6)
                     .addComponent(jLayeredPane5)
                     .addComponent(jLayeredPane1)
                     .addComponent(jLayeredPane2)
                     .addComponent(jLayeredPane3))
-                .addContainerGap(137, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -294,7 +372,9 @@ public class ControlUI extends javax.swing.JFrame {
                 .addComponent(jLayeredPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLayeredPane5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(199, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jLayeredPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -305,11 +385,19 @@ public class ControlUI extends javax.swing.JFrame {
 
         fc.showOpenDialog(this);
         if (fc.getSelectedFile()!=null){
-            input_file=fc.getSelectedFile().toString();
-            System.out.println("input file name: "+input_file);
+            input_file_name=fc.getSelectedFile().toString();
+            System.out.println("input file name: "+input_file_name);
         }else {
             System.out.println("No file was selected!!");
         }
+
+        try {
+            File in_file= new File(input_file_name);
+            readWords(in_file,16);
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
 
     }//GEN-LAST:event_jButton_input_fileActionPerformed
 
@@ -332,8 +420,47 @@ public class ControlUI extends javax.swing.JFrame {
 
     private void init(){
         fc=new JFileChooser(initial_directory);
+        jTextField_key_value.setVisible(true);
+        jTextField_key_value.setDocument(new JTextFieldLimit(16));
+        jTextField_iv.setDocument(new JTextFieldLimit(16));
+        jTextField_padding_value.setDocument(new JTextFieldLimit(16));
     }
 
+    private byte[] readByteBlock(InputStream in, int offset, int noBytes) throws IOException {
+        byte[] result = new byte[noBytes];
+        int bytesread=in.read(result, offset, noBytes);
+        // check the number of bytes read
+        return result;
+    }
+
+    private void readConfiguration(){
+
+    }
+    private  long readWords(File in_file, int byteBlockSize) throws IOException {
+
+
+        InputStream in = new FileInputStream(in_file);
+        OutputStream out= new FileOutputStream(new File("output"));
+        long file_size=(long) Math.ceil((double)in_file.length());
+        long noOfBlocks = (long) Math.ceil(file_size / (double)byteBlockSize);
+        System.out.println("File size in bytes:"+file_size);
+        System.out.println("File size in blocks:"+noOfBlocks);
+        //byte[][] result = new byte[(int)noOfBlocks][byteBlockSize];
+        byte[]result=new byte[byteBlockSize];
+        int offset = 0;
+        int count=0;
+        int i = 0;
+        for(; i < noOfBlocks; i++) {
+            count=in.read(result,0,byteBlockSize);
+            if (count<0){
+                System.out.println("Could not read anymore. count:"+count);
+            }
+            out.write(result,0,count);
+        }
+        System.out.println("Last byte reached. Last block size:"+count);
+        System.out.println("No of blocks read:"+i);
+        return noOfBlocks;
+    }
     /**
      * @param args the command line arguments
      */
@@ -373,14 +500,19 @@ public class ControlUI extends javax.swing.JFrame {
         ControlUI obj= new ControlUI();
         obj.setVisible(true);
         obj.init();
+
+
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton_compare;
     private javax.swing.JButton jButton_implemented_dec;
     private javax.swing.JButton jButton_implemented_enc;
     private javax.swing.JButton jButton_input_file;
     private javax.swing.JButton jButton_library_dec;
     private javax.swing.JButton jButton_library_enc;
+    private javax.swing.JComboBox jComboBox_comparison_mode;
     private javax.swing.JComboBox jComboBox_isPading;
     private javax.swing.JComboBox jComboBox_key_size;
     private javax.swing.JComboBox jComboBox_mode;
@@ -392,13 +524,39 @@ public class ControlUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JLayeredPane jLayeredPane2;
     private javax.swing.JLayeredPane jLayeredPane3;
+    private javax.swing.JLayeredPane jLayeredPane4;
     private javax.swing.JLayeredPane jLayeredPane5;
+    private javax.swing.JLayeredPane jLayeredPane6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea_result;
     private javax.swing.JTextField jTextField_iv;
     private javax.swing.JTextField jTextField_key_value;
     private javax.swing.JTextField jTextField_output_file;
     private javax.swing.JTextField jTextField_padding_value;
     // End of variables declaration//GEN-END:variables
+}
+class JTextFieldLimit extends PlainDocument {
+  private int limit;
+  JTextFieldLimit(int limit) {
+    super();
+    this.limit = limit;
+  }
+
+  JTextFieldLimit(int limit, boolean upper) {
+    super();
+    this.limit = limit;
+  }
+
+  public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException {
+    if (str == null)
+      return;
+
+    if ((getLength() + str.length()) <= limit) {
+      super.insertString(offset, str, attr);
+    }
+  }
 }

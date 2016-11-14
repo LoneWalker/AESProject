@@ -29,7 +29,7 @@ public class Main {
     
     static String IV = "AAAAAAAAAAAAAAAA";
     //static String plaintext = "test text 123\0\0\0"; /*Note null padding*/
-    static String plaintext = "BBBBBBBBBBBBBBBB"; /*Note null padding*/
+    static String plaintext = "BBBBBBBBBBBBBBBab"; /*Note null padding*/
     static String encryptionKey = "AAAAAAAAAAAAAAAA";// 16 bytes or 128 bits
     public static void main(String [] args) {
         try {
