@@ -1,4 +1,6 @@
-import javax.swing.JFileChooser;
+import aes.Constants;
+
+import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -27,6 +29,15 @@ public class ControlUI extends javax.swing.JFrame {
     private final String initial_directory = "/Users/azhar/Documents/GitProjects/";
     public static String input_file_name;
     public static String output_file_name;
+    public static String aes_key=null;
+    public static String IV=null;
+    public static String pad=null;
+
+
+    public static boolean isCBC=true;
+    public static boolean isPadding=true;
+
+    public static int key_size=0;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -43,7 +54,7 @@ public class ControlUI extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jTextField_key_value = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jComboBox_mode = new javax.swing.JComboBox();
+        jComboBox_aes_mode = new javax.swing.JComboBox();
         jLabel4 = new javax.swing.JLabel();
         jTextField_iv = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
@@ -82,7 +93,7 @@ public class ControlUI extends javax.swing.JFrame {
 
         jLabel3.setText("Mode");
 
-        jComboBox_mode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "CBC", "EBC" }));
+        jComboBox_aes_mode.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "CBC", "EBC" }));
 
         jLabel4.setText("IV");
 
@@ -109,7 +120,7 @@ public class ControlUI extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel2))
                     .addGroup(jLayeredPane1Layout.createSequentialGroup()
-                        .addComponent(jComboBox_mode, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jComboBox_aes_mode, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jLabel4))
                     .addGroup(jLayeredPane1Layout.createSequentialGroup()
@@ -135,7 +146,7 @@ public class ControlUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jLayeredPane1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jComboBox_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox_aes_mode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(jTextField_iv, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(7, 7, 7)
@@ -151,7 +162,7 @@ public class ControlUI extends javax.swing.JFrame {
         jLayeredPane1.setLayer(jLabel2, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jTextField_key_value, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jLabel3, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        jLayeredPane1.setLayer(jComboBox_mode, javax.swing.JLayeredPane.DEFAULT_LAYER);
+        jLayeredPane1.setLayer(jComboBox_aes_mode, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jLabel4, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jTextField_iv, javax.swing.JLayeredPane.DEFAULT_LAYER);
         jLayeredPane1.setLayer(jLabel5, javax.swing.JLayeredPane.DEFAULT_LAYER);
@@ -391,18 +402,14 @@ public class ControlUI extends javax.swing.JFrame {
             System.out.println("No file was selected!!");
         }
 
-        try {
-            File in_file= new File(input_file_name);
-            readWords(in_file,16);
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-
 
     }//GEN-LAST:event_jButton_input_fileActionPerformed
 
     private void jButton_implemented_encActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_implemented_encActionPerformed
         // TODO add your handling code here:
+        if (checkAESConfiguration()){ //call encrypt function
+
+        }
     }//GEN-LAST:event_jButton_implemented_encActionPerformed
 
     private void jButton_implemented_decActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_implemented_decActionPerformed
@@ -426,16 +433,67 @@ public class ControlUI extends javax.swing.JFrame {
         jTextField_padding_value.setDocument(new JTextFieldLimit(16));
     }
 
+
+
+    private boolean checkAESConfiguration(){
+        if (jComboBox_key_size.getSelectedItem().toString().equals(Constants.KEY_SIZE_128)){
+            key_size = 128;
+            aes_key=jTextField_key_value.getText();
+            if (aes_key==null || aes_key.isEmpty()|| aes_key.length()<16){
+                JOptionPane.showMessageDialog(null,"AES Keys size should be 16 bytes long!!");
+                return false;
+            }
+        }else {
+            key_size=192;
+            if (aes_key==null || aes_key.isEmpty()|| aes_key.length()<24){
+                JOptionPane.showMessageDialog(null,"AES Keys size should be 24 bytes long!!");
+                return false;
+            }
+        }
+
+        if (jComboBox_aes_mode.getSelectedItem().toString().equals(Constants.CBC)){ //CBC mode
+            isCBC=true;
+            IV=jTextField_iv.getText();
+            if (IV==null || IV.isEmpty() || IV.length()<16){
+                JOptionPane.showMessageDialog(null,"IV should be 16 bytes long!!");
+                return false;
+            }
+
+        }else { // ECB mode
+            isCBC=false;
+        }
+
+        if (jComboBox_isPading.getSelectedItem().toString().equals(Constants.YES)){
+            isPadding=true;
+            pad=jTextField_padding_value.getText();
+            if (pad==null || pad.isEmpty() || pad.length()<16){
+                JOptionPane.showMessageDialog(null,"Pad length should be 16 bytes long!!");
+                return false;
+            }
+        }else {
+            isPadding=false;
+        }
+
+        if (input_file_name==null || input_file_name.isEmpty()){
+            JOptionPane.showMessageDialog(null,"Please select input file");
+            return false;
+        }
+
+        output_file_name = jTextField_output_file.getText();
+        if (output_file_name==null || output_file_name.isEmpty()){
+            JOptionPane.showMessageDialog(null,"Please give output file name");
+        }
+
+        return true;
+    }
+    /*
     private byte[] readByteBlock(InputStream in, int offset, int noBytes) throws IOException {
         byte[] result = new byte[noBytes];
         int bytesread=in.read(result, offset, noBytes);
         // check the number of bytes read
         return result;
     }
-
-    private void readConfiguration(){
-
-    }
+    */
     private  long readWords(File in_file, int byteBlockSize) throws IOException {
 
 
@@ -512,10 +570,10 @@ public class ControlUI extends javax.swing.JFrame {
     private javax.swing.JButton jButton_input_file;
     private javax.swing.JButton jButton_library_dec;
     private javax.swing.JButton jButton_library_enc;
+    private javax.swing.JComboBox jComboBox_aes_mode;
     private javax.swing.JComboBox jComboBox_comparison_mode;
     private javax.swing.JComboBox jComboBox_isPading;
     private javax.swing.JComboBox jComboBox_key_size;
-    private javax.swing.JComboBox jComboBox_mode;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
