@@ -1,6 +1,8 @@
 package aes;
 
 import javax.crypto.spec.IvParameterSpec;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class AES {
 
@@ -286,7 +288,7 @@ public class AES {
 		return tmp;
 	}
 	
-	public static byte[] encrypt(byte[] in,byte[] key){
+	public static byte[] encrypt(byte[] in, byte[] key){
 		
 		Nb = 4;
 		Nk = key.length/4;

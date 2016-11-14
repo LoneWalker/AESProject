@@ -27,9 +27,9 @@ public class ControlUI extends javax.swing.JFrame {
 
     JFileChooser fc;
     private final String initial_directory = "/Users/azhar/Documents/GitProjects/";
-    public static String input_file_name;
-    public static String output_file_name;
-    public static String aes_key=null;
+    private String input_file_name;
+    private String output_file_name;
+    private String aes_key=null;
     public static String IV=null;
     public static String pad=null;
 
@@ -408,7 +408,35 @@ public class ControlUI extends javax.swing.JFrame {
     private void jButton_implemented_encActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_implemented_encActionPerformed
         // TODO add your handling code here:
         if (checkAESConfiguration()){ //call encrypt function
+            File in= new File(input_file_name);
+            File out= new File(output_file_name);
+            FileInputStream is=null;
+            FileOutputStream os=null;
 
+            try {
+                is=new FileInputStream(input_file_name);
+                os=new FileOutputStream(output_file_name);
+
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }finally {
+                if (is!=null){
+                    try {
+                        is.close();
+                    }catch (Exception e1){
+                     e1.printStackTrace();
+                    }
+                }
+
+                if (os!=null){
+                    try {
+                        os.close();
+                    }catch (Exception e2){
+                        e2.printStackTrace();
+                    }
+                }
+            }
         }
     }//GEN-LAST:event_jButton_implemented_encActionPerformed
 
@@ -481,7 +509,8 @@ public class ControlUI extends javax.swing.JFrame {
 
         output_file_name = jTextField_output_file.getText();
         if (output_file_name==null || output_file_name.isEmpty()){
-            JOptionPane.showMessageDialog(null,"Please give output file name");
+            JOptionPane.showMessageDialog(null,"Please type in output file name");
+            return false;
         }
 
         return true;
