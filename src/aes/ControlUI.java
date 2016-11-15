@@ -1,3 +1,6 @@
+package aes;
+
+import aes.AES;
 import aes.Constants;
 
 import javax.swing.*;
@@ -26,12 +29,11 @@ public class ControlUI extends javax.swing.JFrame {
     }
 
     JFileChooser fc;
-    private final String initial_directory = "/Users/azhar/Documents/GitProjects/";
     private String input_file_name;
     private String output_file_name;
     private String aes_key=null;
     public static String IV=null;
-    public static String pad=null;
+    public static byte[] pad=null;
 
 
     public static boolean isCBC=true;
@@ -416,6 +418,12 @@ public class ControlUI extends javax.swing.JFrame {
             try {
                 is=new FileInputStream(input_file_name);
                 os=new FileOutputStream(output_file_name);
+                boolean success=  AES.encrypt(is,in.length(), os,aes_key.getBytes());
+                if (success){
+                    JOptionPane.showMessageDialog(null,"Encryption Successful");
+                }else {
+                    System.out.println("Encryption failed!!");
+                }
 
 
             }catch (Exception ex){
@@ -442,19 +450,131 @@ public class ControlUI extends javax.swing.JFrame {
 
     private void jButton_implemented_decActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_implemented_decActionPerformed
         // TODO add your handling code here:
+        if (checkAESConfiguration()){ //call encrypt function
+            File in= new File(input_file_name);
+            File out= new File(output_file_name);
+            FileInputStream is=null;
+            FileOutputStream os=null;
+
+            try {
+                is=new FileInputStream(input_file_name);
+                os=new FileOutputStream(output_file_name);
+                boolean success=  AES.decrypt(is,in.length(), os,aes_key.getBytes());
+                if (success){
+                    JOptionPane.showMessageDialog(null,"Decryption Successful");
+                }else {
+                    System.out.println("Decryption failed!!");
+                }
+
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }finally {
+                if (is!=null){
+                    try {
+                        is.close();
+                    }catch (Exception e1){
+                        e1.printStackTrace();
+                    }
+                }
+
+                if (os!=null){
+                    try {
+                        os.close();
+                    }catch (Exception e2){
+                        e2.printStackTrace();
+                    }
+                }
+            }
+        }
     }//GEN-LAST:event_jButton_implemented_decActionPerformed
 
     private void jButton_library_encActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_library_encActionPerformed
         // TODO add your handling code here:
+        if (checkAESConfiguration()){ //call encrypt function
+            File in= new File(input_file_name);
+            File out= new File(output_file_name);
+            FileInputStream is=null;
+            FileOutputStream os=null;
+
+            try {
+                is=new FileInputStream(input_file_name);
+                os=new FileOutputStream(output_file_name);
+                boolean success=  LibraryAES.encrypt(is,in.length(), os,aes_key.getBytes());
+                if (success){
+                    JOptionPane.showMessageDialog(null,"Encryption Successful");
+                }else {
+                    System.out.println("Encryption failed!!");
+                }
+
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }finally {
+                if (is!=null){
+                    try {
+                        is.close();
+                    }catch (Exception e1){
+                        e1.printStackTrace();
+                    }
+                }
+
+                if (os!=null){
+                    try {
+                        os.close();
+                    }catch (Exception e2){
+                        e2.printStackTrace();
+                    }
+                }
+            }
+        }
     }//GEN-LAST:event_jButton_library_encActionPerformed
 
     private void jButton_library_decActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_library_decActionPerformed
         // TODO add your handling code here:
+        if (checkAESConfiguration()){ //call encrypt function
+            File in= new File(input_file_name);
+            File out= new File(output_file_name);
+            FileInputStream is=null;
+            FileOutputStream os=null;
+
+            try {
+                is=new FileInputStream(input_file_name);
+                os=new FileOutputStream(output_file_name);
+                boolean success=  LibraryAES.decrypt(is,in.length(), os,aes_key.getBytes());
+                if (success){
+                    JOptionPane.showMessageDialog(null,"Decryption Successful");
+                }else {
+                    System.out.println("Decryption failed!!");
+                }
+
+
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }finally {
+                if (is!=null){
+                    try {
+                        is.close();
+                    }catch (Exception e1){
+                        e1.printStackTrace();
+                    }
+                }
+
+                if (os!=null){
+                    try {
+                        os.close();
+                    }catch (Exception e2){
+                        e2.printStackTrace();
+                    }
+                }
+            }
+        }
     }//GEN-LAST:event_jButton_library_decActionPerformed
 
 
     private void init(){
-        fc=new JFileChooser(initial_directory);
+
+        fc=new JFileChooser(System.getProperty("user.dir"));
         jTextField_key_value.setVisible(true);
         jTextField_key_value.setDocument(new JTextFieldLimit(16));
         jTextField_iv.setDocument(new JTextFieldLimit(16));
@@ -493,10 +613,12 @@ public class ControlUI extends javax.swing.JFrame {
 
         if (jComboBox_isPading.getSelectedItem().toString().equals(Constants.YES)){
             isPadding=true;
-            pad=jTextField_padding_value.getText();
-            if (pad==null || pad.isEmpty() || pad.length()<16){
+            String str_pad=jTextField_padding_value.getText();
+            if (str_pad==null || str_pad.isEmpty() || str_pad.length()<16){
                 JOptionPane.showMessageDialog(null,"Pad length should be 16 bytes long!!");
                 return false;
+            }else {
+                pad=str_pad.getBytes();
             }
         }else {
             isPadding=false;

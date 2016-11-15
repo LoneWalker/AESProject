@@ -1,8 +1,8 @@
 package aes;
 
-import javax.crypto.spec.IvParameterSpec;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+
+import javax.swing.*;
+import java.io.*;
 
 public class AES {
 
@@ -10,8 +10,6 @@ public class AES {
 
 	private static int Nb, Nk, Nr;
 	private static byte[][] w;
-	public static String iv;
-	public static String pad;
 
 
 	private static int[] sbox = { 0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F,
@@ -287,94 +285,209 @@ public class AES {
 
 		return tmp;
 	}
-	
-	public static byte[] encrypt(byte[] in, byte[] key){
+
+	/*
+	private  long readWords(File in_file, int byteBlockSize) throws IOException {
+
+
+		InputStream in = new FileInputStream(in_file);
+		OutputStream out= new FileOutputStream(new File("output"));
+		long file_size=(long) Math.ceil((double)in_file.length());
+		long noOfBlocks = (long) Math.ceil(file_size / (double)byteBlockSize);
+		System.out.println("File size in bytes:"+file_size);
+		System.out.println("File size in blocks:"+noOfBlocks);
+		//byte[][] result = new byte[(int)noOfBlocks][byteBlockSize];
+		byte[]result=new byte[byteBlockSize];
+		int offset = 0;
+		int count=0;
+		int i = 0;
+		for(; i < noOfBlocks; i++) {
+			count=in.read(result,0,byteBlockSize);
+			if (count<0){
+				System.out.println("Could not read anymore. count:"+count);
+			}
+			out.write(result,0,count);
+		}
+		System.out.println("Last byte reached. Last block size:"+count);
+		System.out.println("No of blocks read:"+i);
+		return noOfBlocks;
+	}
+	*/
+
+	public static boolean encrypt(FileInputStream in, long input_size_in_bytes, FileOutputStream out, byte[] key) throws IOException{
 		
 		Nb = 4;
 		Nk = key.length/4;
 		Nr = Nk + 6;
 		
 		
-		int lenght=0;
+		int pad_lenght=0;
 		byte[] padding;
 		int i;
-		//use a flag for adding padding
-		lenght = 16 - in.length % 16;	// because blocks are 16 bytes or 128 bits long
-		padding = new byte[lenght];					
-		padding[0] = (byte) 0x80;
-		
-		for (i = 1; i < lenght; i++)				
-			padding[i] = 0;
+		int j;
 
-		byte[] tmp = new byte[in.length + lenght];		
-		byte[] bloc = new byte[16];							
-		
-		
+		long noOfBlocks = (long) Math.ceil(input_size_in_bytes / (double)Constants.blockSizeinBytes);
+		boolean isRoundSize=true;
+
+
+		// logics to add padding
+
+		pad_lenght = Constants.blockSizeinBytes - (int)input_size_in_bytes % Constants.blockSizeinBytes;	// because blocks are 16 bytes or 128 bits long
+		padding = new byte[pad_lenght];
+		padding[0] = Constants.padkMarker;
+		//boolean isPaddingRequired=false;
+		if (pad_lenght!=Constants.blockSizeinBytes){
+			isRoundSize = false;
+
+			if (ControlUI.isPadding){
+				for (i = 1,j=0; i < pad_lenght; i++,j++)
+					padding[i] = ControlUI.pad[j];
+			}else {
+				System.out.println("File size is not multiple of 16 bytes/128bits and \n padding is disabled.\n So, padding with all 0's");
+
+				for (i = 1,j=0; i < pad_lenght; i++,j++)
+					padding[i] = 0;
+			}
+		}else {	// if file size is multiple of blockSizeinBytes, then do padding only if its enabled
+			if (ControlUI.isPadding){
+				for (i = 1,j=0; i < pad_lenght; i++,j++)
+					padding[i] = ControlUI.pad[j];
+			}
+		}
+
+		// padding logic ends
+
+		byte[] block = new byte[Constants.blockSizeinBytes];
+		byte[] preceding_block = new byte[Constants.blockSizeinBytes];
+
+
+		if (ControlUI.isCBC){
+			System.arraycopy(ControlUI.IV.getBytes(),0,preceding_block,0,Constants.blockSizeinBytes);
+		}
+
 		w = generateSubkeys(key);
 		
 		int count = 0;
 
-		for (i = 0; i < in.length + lenght; i++) {
-			if (i > 0 && i % 16 == 0) {
-				bloc = encryptBloc(bloc);
-				System.arraycopy(bloc, 0, tmp, i - 16, bloc.length);
+		for(i=0; i < noOfBlocks; i++) {
+
+			count=in.read(block,0,Constants.blockSizeinBytes);
+
+			if (count<0){// could not read the file. Need to terminate encryption
+				System.out.println("Could not read anymore. count:"+count);
+				JOptionPane.showMessageDialog(null,"Could not read the whole file.\n No of bytes read = "+(Constants.blockSizeinBytes*i)+"\n Count value="+count);
+				return false;
 			}
-			if (i < in.length)	//copy data from main input
-				bloc[i % 16] = in[i];
-			else{				//copy data from padding
-				bloc[i % 16] = padding[count % 16];
-				count++;
+
+			if (i==noOfBlocks-1){// last block of the file
+				if (!isRoundSize){// need to copy padd to the remaining bytes;
+					for (int k=count, l=0; k<Constants.blockSizeinBytes;k++,l++){
+						block[k]=padding[l];
+					}
+
+				}
+
+			}
+
+			if (ControlUI.isCBC){
+				block=xor_func(preceding_block,block);
+			}
+
+			block=encryptBloc(block);
+
+			out.write(block,0,Constants.blockSizeinBytes);
+
+			if (ControlUI.isCBC){
+				System.arraycopy(block,0,preceding_block,0,Constants.blockSizeinBytes);
 			}
 		}
-		if(bloc.length == 16){
-			bloc = encryptBloc(bloc);
-			System.arraycopy(bloc, 0, tmp, i - 16, bloc.length);
+		// now only need to check if padding required even if file size is multiple of blockSizeinBytes
+		if (isRoundSize && ControlUI.isPadding){
+
+			for (int k=0; k<Constants.blockSizeinBytes;k++){
+				block[k]=padding[k];
+			}
+
+			if (ControlUI.isCBC){
+				block=xor_func(preceding_block,block);
+			}
+
+			block=encryptBloc(block);
+			out.write(block,0,Constants.blockSizeinBytes);
+
 		}
-		
-		return tmp;
+
+		return true;
 	}
-	
-	public static byte[] decrypt(byte[] in,byte[] key){
-		int i;
-		byte[] tmp = new byte[in.length];
-		byte[] bloc = new byte[16];
-		
+
+	public static int findPadMarkerIndex(byte[] a){
+
+		for (int i=0;i<a.length;i++){
+			if (a[i]==Constants.padkMarker){
+				return i;
+			}
+		}
+
+		return -1;
+
+	}
+	public static boolean decrypt(FileInputStream in, long input_size_in_bytes, FileOutputStream out, byte[] key) throws IOException{
+		int i=0, count=0;
+		byte[] block = new byte[Constants.blockSizeinBytes];
+		byte[] preceding_block= new byte[Constants.blockSizeinBytes];
+		byte[] temp_block=null;
 		
 		Nb = 4;
 		Nk = key.length/4;
 		Nr = Nk + 6;
+
+		long noOfBlocks = (long) Math.ceil(input_size_in_bytes / (double)Constants.blockSizeinBytes);
+
 		w = generateSubkeys(key);
 
 
-		for (i = 0; i < in.length; i++) {
-			if (i > 0 && i % 16 == 0) {
-				bloc = decryptBloc(bloc);
-				System.arraycopy(bloc, 0, tmp, i - 16, bloc.length);
+		if (ControlUI.isCBC){
+			System.arraycopy(ControlUI.IV.getBytes(),0,preceding_block, 0,Constants.blockSizeinBytes);
+		}
+
+		for(i=0; i < noOfBlocks; i++) {
+
+			if (ControlUI.isCBC && i!=0 ){
+				System.arraycopy(temp_block,0,preceding_block, 0,Constants.blockSizeinBytes);
 			}
-			if (i < in.length)
-				bloc[i % 16] = in[i];
+
+			count=in.read(block,0,Constants.blockSizeinBytes);
+
+			if (count<0){// could not read the file. Need to terminate encryption
+				System.out.println("Could not read anymore. count:"+count);
+				JOptionPane.showMessageDialog(null,"Could not read the whole file.\n No of bytes read = "+(Constants.blockSizeinBytes*i)+"\n Count value="+count);
+				return false;
+			}
+			temp_block=block;
+			block=decryptBloc(block);
+
+			if (ControlUI.isCBC){
+				block = xor_func(preceding_block, block);
+			}
+
+			if (i==noOfBlocks-1) {// last block of the file
+				int marker_index=findPadMarkerIndex(block);
+				if (marker_index==-1){
+					System.out.println("No padding was done while encrypting this file");
+					out.write(block,0,count);
+				}else if (marker_index==0){ // entire last byte is pad. So skip.
+					System.out.println("Entire Last word is a pad");
+				}else {
+					out.write(block,0,marker_index);
+				}
+
+			}else {
+				out.write(block,0,count);
+			}
+
 		}
-		bloc = decryptBloc(bloc);
-		System.arraycopy(bloc, 0, tmp, i - 16, bloc.length);
 
-		// put condition here on padding scheme
-		tmp = deletePadding(tmp);
-
-		return tmp;
-	}
-	
-	private static byte[] deletePadding(byte[] input) {
-		int count = 0;
-
-		int i = input.length - 1;
-		while (input[i] == 0) {
-			count++;
-			i--;
-		}
-
-		byte[] tmp = new byte[input.length - count - 1];
-		System.arraycopy(input, 0, tmp, 0, tmp.length);
-		return tmp;
+		return true;
 	}
 	
 }

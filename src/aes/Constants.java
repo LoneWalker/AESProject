@@ -14,4 +14,8 @@ public class Constants {
 
     public static final String KEY_SIZE_128="128";
     public static final String KEY_SIZE_192="192";
+
+    public static int blockSizeinBytes=16;
+
+    public static byte padkMarker = (byte) 0x80;
 }

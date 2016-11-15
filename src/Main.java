@@ -17,7 +17,6 @@ import java.util.Arrays;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.IvParameterSpec;
 
 import javax.crypto.Cipher;
 
@@ -33,6 +32,7 @@ public class Main {
     static String encryptionKey = "AAAAAAAAAAAAAAAA";// 16 bytes or 128 bits
     public static void main(String [] args) {
         try {
+
 
             System.out.println("==Java Library Encryption==");
             System.out.println("plain:   " + plaintext);
@@ -57,7 +57,7 @@ public class Main {
 
             System.out.println("==Manual implementation of AES==");
             System.out.println("Text clar: "+plaintext);
-            cipher = aes.AES.encrypt(plaintext.getBytes(), encryptionKey.getBytes());
+            //cipher = aes.AES.encrypt(plaintext.getBytes(), encryptionKey.getBytes());
             System.out.print("Cipher : ");
             printCipher(cipher);
 
