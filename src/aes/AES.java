@@ -91,7 +91,6 @@ public class AES {
 	private static byte[][] generateSubkeys(byte[] key) {
 		byte[][] tmp = new byte[Nb * (Nr + 1)][4];
 
-		//System.out.println("Length of round key is:"+ (Nb * (Nr + 1)));
 		int i = 0;
 		while (i < Nk) {
 
