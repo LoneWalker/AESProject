@@ -36,6 +36,6 @@ The plan for the future is to implement public key cryptography such as RSA and 
 
 TECHNOLOGY USED
 
-Language: Java
-IDE: Netbeans
-Package: java.security
+#Language: Java
+#IDE: Netbeans
+#Package: java.security
