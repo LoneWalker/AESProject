@@ -30,10 +30,12 @@ Things to Note:
 ECB mode is selected. Its irrespective of padding.
 2) Library implementation only work in ECB mode. CBC mode does not work in library mode even if selected from GUI.
 
-Future Extension:
+FUTURE EXTENSION
+
 The plan for the future is to implement public key cryptography such as RSA and compare with AES.
 
 TECHNOLOGY USED
+
 Language: Java
 IDE: Netbeans
 Package: java.security
